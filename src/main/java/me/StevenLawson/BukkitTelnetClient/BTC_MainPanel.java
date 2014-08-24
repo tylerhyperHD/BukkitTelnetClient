@@ -1,8 +1,12 @@
 package me.StevenLawson.BukkitTelnetClient;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +34,11 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import static me.StevenLawson.BukkitTelnetClient.BTC_TelnetMessage.BTC_LogMessageType.ADMINSAY_MESSAGE;
+import static me.StevenLawson.BukkitTelnetClient.BTC_TelnetMessage.BTC_LogMessageType.CHAT_MESSAGE;
+import static me.StevenLawson.BukkitTelnetClient.BTC_TelnetMessage.BTC_LogMessageType.CSAY_MESSAGE;
+import static me.StevenLawson.BukkitTelnetClient.BTC_TelnetMessage.BTC_LogMessageType.SAY_MESSAGE;
+import static me.StevenLawson.BukkitTelnetClient.BTC_TelnetMessage.BTC_LogMessageType.SRADMINSAY_MESSAGE;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -59,6 +68,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
         });
 
         this.loadServerList();
+        this.loadFonts();
 
         final URL icon = this.getClass().getResource("/icon.png");
         if (icon != null)
@@ -175,6 +185,87 @@ public class BTC_MainPanel extends javax.swing.JFrame
                             });
                             timer.setRepeats(false);
                             timer.start();
+                        }
+                    }
+                }
+                
+                final StyledDocument chatDocument = chatOutput.getStyledDocument();
+
+                int chatLength = chatDocument.getLength();
+                if (message instanceof BTC_TelnetMessage)
+                {
+                    BTC_TelnetMessage telnetMessage = (BTC_TelnetMessage) message;
+                    BTC_TelnetMessage.BTC_LogMessageType messageType = telnetMessage.getMessageType();
+                    
+                    switch(messageType)
+                    {
+                        case CHAT_MESSAGE:
+                            if(!BTC_MainPanel.this.showChat.isSelected())
+                            {
+                                return;
+                            }
+                        break;
+                        case CSAY_MESSAGE:
+                            if(!BTC_MainPanel.this.showCsay.isSelected())
+                            {
+                                return;
+                            }
+                        break;
+                        case SAY_MESSAGE:
+                            if(!BTC_MainPanel.this.showSay.isSelected())
+                            {
+                                return;
+                            }
+                        break;
+                        case ADMINSAY_MESSAGE:
+                            if(!BTC_MainPanel.this.showAdmin.isSelected())
+                            {
+                                return;
+                            }
+                        break;
+                        case SRADMINSAY_MESSAGE:
+                            if(!BTC_MainPanel.this.showSRA.isSelected())
+                            {
+                                return;
+                            }
+                        break;
+                        default:
+                            return;
+                    }
+                    try
+                    {
+                        chatDocument.insertString(
+                                chatDocument.getLength(),
+                                message.getMessage() + SystemUtils.LINE_SEPARATOR,
+                                StyleContext.getDefaultStyleContext().addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, telnetMessage.getColor())
+                        );
+                    }
+                    catch (BadLocationException ex)
+                    {
+                        throw new RuntimeException(ex);
+                    }
+
+                    if (BTC_MainPanel.this.chatAutoScroll.isSelected() && BTC_MainPanel.this.chatOutput.getSelectedText() == null)
+                    {
+                        final JScrollBar vScroll = chatOutputScroll.getVerticalScrollBar();
+
+                        if (!vScroll.getValueIsAdjusting())
+                        {
+                            if (vScroll.getValue() + vScroll.getModel().getExtent() >= (vScroll.getMaximum() - 10))
+                            {
+                                BTC_MainPanel.this.chatOutput.setCaretPosition(startLength);
+
+                                final Timer timer = new Timer(10, new ActionListener()
+                                {
+                                    @Override
+                                    public void actionPerformed(ActionEvent ae)
+                                    {
+                                        vScroll.setValue(vScroll.getMaximum());
+                                    }
+                                });
+                                timer.setRepeats(false);
+                                timer.start();
+                            }
                         }
                     }
                 }
@@ -323,7 +414,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 {
                     return;
                 }
-                if (mouseEvent.isPopupTrigger() && mouseEvent.getComponent() instanceof JTable)
+                if (SwingUtilities.isRightMouseButton(mouseEvent) && mouseEvent.getComponent() instanceof JTable)
                 {
                     final PlayerInfo player = getSelectedPlayer();
                     if (player != null)
@@ -349,7 +440,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                                     final PlayerInfo _player = source.getPlayer();
                                     final PlayerCommandEntry _command = source.getCommand();
 
-                                    final String output = String.format(_command.getFormat(), _player.getName());
+                                    final String output = String.format(_command.getFormat(), _player.getName(), BTC_MainPanel.this.Arguments.getText());
 
                                     BTC_MainPanel.this.connectionManager.sendDelayedCommand(output, true, 100);
                                 }
@@ -431,6 +522,18 @@ public class BTC_MainPanel extends javax.swing.JFrame
             }
         }
     }
+    
+    public final void loadFonts()
+    {
+        FontFace.removeAllItems();
+        GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Font[] font = e.getAllFonts();
+        for (Font f : font)
+        {
+            FontFace.addItem(f.getFontName());
+        }
+        FontFace.setSelectedItem(BTC_MainPanel.this.mainOutput.getFont());
+    }
 
     public final void saveServersAndTriggerConnect()
     {
@@ -460,8 +563,20 @@ public class BTC_MainPanel extends javax.swing.JFrame
             {
                 serverName = "Unnamed";
             }
+            
+            String pluginName = JOptionPane.showInputDialog(this, "Enter plugin name:", "Plugin Name", JOptionPane.PLAIN_MESSAGE);
+            if (pluginName == null)
+            {
+                return;
+            }
 
-            entry = new ServerEntry(serverName, serverAddress);
+            pluginName = StringUtils.trimToEmpty(pluginName);
+            if (pluginName.isEmpty())
+            {
+                pluginName = "Unnamed";
+            }
+
+            entry = new ServerEntry(serverName, serverAddress, true, pluginName);
 
             BukkitTelnetClient.config.getServers().add(entry);
         }
@@ -486,9 +601,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
 
+        jMenuItem1 = new javax.swing.JMenuItem();
         splitPane = new javax.swing.JSplitPane();
         jPanel3 = new javax.swing.JPanel();
         mainOutputScoll = new javax.swing.JScrollPane();
@@ -507,37 +622,60 @@ public class BTC_MainPanel extends javax.swing.JFrame
         tblPlayers = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         txtNumPlayers = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        Arguments = new javax.swing.JTextField();
+        jPanel4 = new javax.swing.JPanel();
+        message = new javax.swing.JTextField();
+        srachat = new javax.swing.JButton();
+        sachat = new javax.swing.JButton();
+        chat = new javax.swing.JButton();
+        chatOutputScroll = new javax.swing.JScrollPane();
+        chatOutput = new javax.swing.JTextPane();
+        chatAutoScroll = new javax.swing.JCheckBox();
+        showChat = new javax.swing.JCheckBox();
+        showCsay = new javax.swing.JCheckBox();
+        showSay = new javax.swing.JCheckBox();
+        showAdmin = new javax.swing.JCheckBox();
+        showSRA = new javax.swing.JCheckBox();
+        jPanel5 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         chkIgnorePlayerCommands = new javax.swing.JCheckBox();
         chkIgnoreServerCommands = new javax.swing.JCheckBox();
         chkShowChatOnly = new javax.swing.JCheckBox();
         chkIgnoreErrors = new javax.swing.JCheckBox();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        fflabel = new javax.swing.JLabel();
+        fslabel = new javax.swing.JLabel();
+        FontFace = new javax.swing.JComboBox();
+        FontSize = new javax.swing.JTextField();
+        save = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        PluginName = new javax.swing.JTextField();
+        saveplugin = new javax.swing.JButton();
+
+        jMenuItem1.setText("jMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BukkitTelnetClient");
 
         splitPane.setResizeWeight(1.0);
 
-        mainOutput.setEditable(false);
         mainOutput.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
         mainOutputScoll.setViewportView(mainOutput);
 
         btnDisconnect.setText("Disconnect");
         btnDisconnect.setEnabled(false);
-        btnDisconnect.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        btnDisconnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDisconnectActionPerformed(evt);
             }
         });
 
         btnSend.setText("Send");
         btnSend.setEnabled(false);
-        btnSend.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        btnSend.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSendActionPerformed(evt);
             }
         });
@@ -548,19 +686,20 @@ public class BTC_MainPanel extends javax.swing.JFrame
         chkAutoScroll.setText("AutoScroll");
 
         txtCommand.setEnabled(false);
-        txtCommand.addKeyListener(new java.awt.event.KeyAdapter()
-        {
-            public void keyPressed(java.awt.event.KeyEvent evt)
-            {
+        txtCommand.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtCommandActionPerformed(evt);
+            }
+        });
+        txtCommand.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
                 txtCommandKeyPressed(evt);
             }
         });
 
         btnConnect.setText("Connect");
-        btnConnect.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        btnConnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnConnectActionPerformed(evt);
             }
         });
@@ -584,7 +723,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtCommand)
-                            .addComponent(txtServer, 0, 431, Short.MAX_VALUE))
+                            .addComponent(txtServer, 0, 1, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(btnConnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -601,8 +740,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(mainOutputScoll, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
+                .addGap(21, 21, 21)
+                .addComponent(mainOutputScoll, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCommand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -629,6 +768,8 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         txtNumPlayers.setEditable(false);
 
+        jLabel4.setText("Arguments:");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -636,27 +777,164 @@ public class BTC_MainPanel extends javax.swing.JFrame
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(txtNumPlayers, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Arguments)
+                        .addGap(6, 6, 6)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(txtNumPlayers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtNumPlayers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(Arguments, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
         jTabbedPane1.addTab("Player List", jPanel2);
+
+        message.setText("Message");
+        message.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                messageActionPerformed(evt);
+            }
+        });
+
+        srachat.setText("SrA Chat");
+        srachat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                srachatActionPerformed(evt);
+            }
+        });
+
+        sachat.setText("SA Chat");
+        sachat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sachatActionPerformed(evt);
+            }
+        });
+
+        chat.setText("Chat");
+        chat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chatActionPerformed(evt);
+            }
+        });
+
+        chatOutput.setEditable(false);
+        chatOutput.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
+        chatOutputScroll.setViewportView(chatOutput);
+
+        chatAutoScroll.setSelected(true);
+        chatAutoScroll.setText("AutoScroll");
+        chatAutoScroll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chatAutoScrollActionPerformed(evt);
+            }
+        });
+
+        showChat.setSelected(true);
+        showChat.setText("Chat");
+        showChat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showChatActionPerformed(evt);
+            }
+        });
+
+        showCsay.setSelected(true);
+        showCsay.setText("cSay");
+
+        showSay.setSelected(true);
+        showSay.setText("Say");
+
+        showAdmin.setSelected(true);
+        showAdmin.setText("AdminChat");
+
+        showSRA.setSelected(true);
+        showSRA.setText("SrAChat");
+        showSRA.setDoubleBuffered(true);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(message)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(chat)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(sachat)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(srachat))
+                    .addComponent(chatOutputScroll, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(chatAutoScroll)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(showChat)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(showCsay)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(showSay)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(showAdmin)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(showSRA)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(message, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(srachat)
+                    .addComponent(sachat)
+                    .addComponent(chat))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chatOutputScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(chatAutoScroll)
+                    .addComponent(showChat)
+                    .addComponent(showCsay)
+                    .addComponent(showSay)
+                    .addComponent(showAdmin)
+                    .addComponent(showSRA))
+                .addContainerGap())
+        );
+
+        chatAutoScroll.getAccessibleContext().setAccessibleName("chatAutoScroll");
+
+        jTabbedPane1.addTab("Chat", jPanel4);
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 570, Short.MAX_VALUE)
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 475, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Binds", jPanel5);
 
         chkIgnorePlayerCommands.setSelected(true);
         chkIgnorePlayerCommands.setText("Ignore \"[PLAYER_COMMAND]\" messages");
@@ -665,20 +943,47 @@ public class BTC_MainPanel extends javax.swing.JFrame
         chkIgnoreServerCommands.setText("Ignore \"issued server command\" messages");
 
         chkShowChatOnly.setText("Show chat only");
-        chkShowChatOnly.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        chkShowChatOnly.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkShowChatOnlyActionPerformed(evt);
             }
         });
 
         chkIgnoreErrors.setText("Ignore warnings and errors");
-        chkIgnoreErrors.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        chkIgnoreErrors.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chkIgnoreErrorsActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setText("Filters");
+
+        jLabel7.setText("Font Options");
+
+        fflabel.setText("Font Face");
+
+        fslabel.setText("Font Size");
+
+        FontFace.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        FontFace.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                FontFaceActionPerformed(evt);
+            }
+        });
+
+        save.setText("Save Font Settings");
+        save.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("Plugin Name ~ Requires Restart");
+
+        saveplugin.setText("Save Plugin Name");
+        saveplugin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savepluginActionPerformed(evt);
             }
         });
 
@@ -689,16 +994,39 @@ public class BTC_MainPanel extends javax.swing.JFrame
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(chkIgnorePlayerCommands)
-                    .addComponent(chkIgnoreServerCommands)
-                    .addComponent(chkShowChatOnly)
-                    .addComponent(chkIgnoreErrors))
-                .addContainerGap(76, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(fflabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(FontFace, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addComponent(chkIgnorePlayerCommands)
+                            .addComponent(chkIgnoreServerCommands)
+                            .addComponent(chkShowChatOnly)
+                            .addComponent(chkIgnoreErrors)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel5))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(fslabel)
+                                .addGap(18, 18, 18)
+                                .addComponent(FontSize, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(PluginName, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 136, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(save, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(saveplugin, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chkIgnorePlayerCommands, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chkIgnoreServerCommands, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -706,10 +1034,27 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 .addComponent(chkShowChatOnly, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chkIgnoreErrors, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(323, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fflabel)
+                    .addComponent(FontFace, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fslabel)
+                    .addComponent(FontSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(save))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(PluginName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(saveplugin))
+                .addContainerGap(143, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Filters", jPanel1);
+        jTabbedPane1.addTab("Options", jPanel1);
 
         splitPane.setRightComponent(jTabbedPane1);
 
@@ -719,7 +1064,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addComponent(splitPane)
+                .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1170, Short.MAX_VALUE)
                 .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
@@ -774,38 +1119,115 @@ public class BTC_MainPanel extends javax.swing.JFrame
         txtCommand.selectAll();
     }//GEN-LAST:event_btnSendActionPerformed
 
-    private void chkShowChatOnlyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_chkShowChatOnlyActionPerformed
-    {//GEN-HEADEREND:event_chkShowChatOnlyActionPerformed
+    private void txtCommandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCommandActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCommandActionPerformed
+
+    private void showChatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showChatActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showChatActionPerformed
+
+    private void chatAutoScrollActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chatAutoScrollActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_chatAutoScrollActionPerformed
+
+    private void chatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chatActionPerformed
+        connectionManager.sendCommand("csay " + message.getText());
+        message.selectAll();
+        message.requestFocus();
+    }//GEN-LAST:event_chatActionPerformed
+
+    private void sachatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sachatActionPerformed
+        connectionManager.sendCommand("o " + message.getText());
+        message.selectAll();
+        message.requestFocus();
+    }//GEN-LAST:event_sachatActionPerformed
+
+    private void srachatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_srachatActionPerformed
+        connectionManager.sendCommand("p " + message.getText());
+        message.selectAll();
+        message.requestFocus();
+    }//GEN-LAST:event_srachatActionPerformed
+
+    private void messageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_messageActionPerformed
+
+    private void chkIgnoreErrorsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkIgnoreErrorsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_chkIgnoreErrorsActionPerformed
+
+    private void chkShowChatOnlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkShowChatOnlyActionPerformed
         boolean enable = !chkShowChatOnly.isSelected();
         chkIgnorePlayerCommands.setEnabled(enable);
         chkIgnoreServerCommands.setEnabled(enable);
     }//GEN-LAST:event_chkShowChatOnlyActionPerformed
 
-    private void chkIgnoreErrorsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_chkIgnoreErrorsActionPerformed
-    {//GEN-HEADEREND:event_chkIgnoreErrorsActionPerformed
+    private void FontFaceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FontFaceActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_chkIgnoreErrorsActionPerformed
+    }//GEN-LAST:event_FontFaceActionPerformed
+
+    private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
+        BTC_MainPanel.this.mainOutput.setFont(setFontSize());
+    }//GEN-LAST:event_saveActionPerformed
+
+    private void savepluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savepluginActionPerformed
+        for (ServerEntry entry : BukkitTelnetClient.config.getServers())
+        {
+            if(entry.isLastUsed())
+            {
+                entry.setPlugin(BTC_MainPanel.this.PluginName.getText());
+            }
+        }
+    }//GEN-LAST:event_savepluginActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField Arguments;
+    private javax.swing.JComboBox FontFace;
+    private javax.swing.JTextField FontSize;
+    private javax.swing.JTextField PluginName;
     private javax.swing.JButton btnConnect;
     private javax.swing.JButton btnDisconnect;
     private javax.swing.JButton btnSend;
+    private javax.swing.JButton chat;
+    private javax.swing.JCheckBox chatAutoScroll;
+    private javax.swing.JTextPane chatOutput;
+    private javax.swing.JScrollPane chatOutputScroll;
     private javax.swing.JCheckBox chkAutoScroll;
     private javax.swing.JCheckBox chkIgnoreErrors;
     private javax.swing.JCheckBox chkIgnorePlayerCommands;
     private javax.swing.JCheckBox chkIgnoreServerCommands;
     private javax.swing.JCheckBox chkShowChatOnly;
+    private javax.swing.JLabel fflabel;
+    private javax.swing.JLabel fslabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextPane mainOutput;
     private javax.swing.JScrollPane mainOutputScoll;
+    private javax.swing.JTextField message;
+    private javax.swing.JButton sachat;
+    private javax.swing.JButton save;
+    private javax.swing.JButton saveplugin;
+    private javax.swing.JCheckBox showAdmin;
+    private javax.swing.JCheckBox showChat;
+    private javax.swing.JCheckBox showCsay;
+    private javax.swing.JCheckBox showSRA;
+    private javax.swing.JCheckBox showSay;
     private javax.swing.JSplitPane splitPane;
+    private javax.swing.JButton srachat;
     private javax.swing.JTable tblPlayers;
     private javax.swing.JTextField txtCommand;
     private javax.swing.JTextField txtNumPlayers;
@@ -870,5 +1292,35 @@ public class BTC_MainPanel extends javax.swing.JFrame
     public List<PlayerInfo> getPlayerList()
     {
         return playerList;
+    }
+    
+    public Font getFont()
+    {
+        String name = (String) BTC_MainPanel.this.FontFace.getSelectedItem();
+        GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Font[] font = e.getAllFonts();
+        for(Font f : font)
+        {
+            if(f.getFontName().equals(name))
+            {
+                return f;
+            }
+        }
+        return null;
+    }
+    
+    public Font setFontSize()
+    {
+        Font font = getFont();
+        int size = 10;
+        try
+        {
+            size = Integer.parseInt(FontSize.getText());
+        }
+        catch(NumberFormatException e)
+        {
+            
+        }
+        return new Font(font.getFontName(), 3, size);
     }
 }

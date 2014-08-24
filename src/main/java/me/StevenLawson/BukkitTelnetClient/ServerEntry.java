@@ -8,6 +8,7 @@ public class ServerEntry
     private String name;
     private String address;
     private boolean lastUsed = false;
+    private String plugin;
 
     public ServerEntry(final String name, final String address)
     {
@@ -21,10 +22,24 @@ public class ServerEntry
         this.address = address;
         this.lastUsed = lastUsed;
     }
+    
+    public ServerEntry(final String name, final String address, final boolean lastUsed, final String pluginName)
+    {
+        this.name = name;
+        this.address = address;
+        this.lastUsed = lastUsed;
+        this.plugin = pluginName;
+    }
+
 
     public String getName()
     {
         return name;
+    }
+    
+    public String getPlugin()
+    {
+        return plugin;
     }
 
     public void setName(String name)
@@ -50,6 +65,11 @@ public class ServerEntry
     public void setLastUsed(boolean lastUsed)
     {
         this.lastUsed = lastUsed;
+    }
+    
+    public void setPlugin(String plugin)
+    {
+        this.plugin = plugin;
     }
 
     @Override
@@ -109,6 +129,10 @@ public class ServerEntry
             final Element serverLastUsed = doc.createElement("lastUsed");
             serverLastUsed.appendChild(doc.createTextNode(Boolean.toString(command.isLastUsed())));
             commandElement.appendChild(serverLastUsed);
+            
+            final Element serverPluginName= doc.createElement("pluginName");
+            serverPluginName.appendChild(doc.createTextNode(command.getPlugin()));
+            commandElement.appendChild(serverPluginName);
         }
 
         return serversElement;
@@ -135,7 +159,8 @@ public class ServerEntry
                 final ServerEntry server = new ServerEntry(
                         element.getElementsByTagName("name").item(0).getTextContent(),
                         element.getElementsByTagName("address").item(0).getTextContent(),
-                        Boolean.valueOf(element.getElementsByTagName("lastUsed").item(0).getTextContent())
+                        Boolean.valueOf(element.getElementsByTagName("lastUsed").item(0).getTextContent()),
+                        element.getElementsByTagName("pluginName").item(0).getTextContent()
                 );
 
                 servers.add(server);

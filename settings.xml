@@ -58,4 +58,12 @@
             <format>survival %s</format>
         </playerCommand>
     </playerCommands>
+    <servers>
+        <server>
+            <name>FreedomOp</name>
+            <address>fop.us.to:27642</address>
+            <lastUsed>true</lastUsed>
+            <pluginName>FreedomOpMod</pluginName>
+        </server>
+    </servers>
 </configuration>

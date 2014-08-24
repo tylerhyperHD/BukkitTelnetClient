@@ -6,7 +6,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class BukkitTelnetClient
 {
-    public static final String VERSION_STRING = "v2.0.4-SNAPSHOT";
+    public static final String VERSION_STRING = "vC2.1.3-ALPHA";
     public static final Logger LOGGER = Logger.getLogger(BukkitTelnetClient.class.getName());
     public static BTC_MainPanel mainPanel = null;
     public static BTC_ConfigLoader config = new BTC_ConfigLoader();
@@ -61,5 +61,17 @@ public class BukkitTelnetClient
         {
             LOGGER.log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public static String getPluginName()
+    {
+        for(ServerEntry entry : config.getServers())
+        {
+            if(entry.isLastUsed())
+            {
+                return entry.getPlugin();
+            }
+        }
+        return null;
     }
 }

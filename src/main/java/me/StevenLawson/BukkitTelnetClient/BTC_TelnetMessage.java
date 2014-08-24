@@ -1,6 +1,7 @@
 package me.StevenLawson.BukkitTelnetClient;
 
 import java.awt.Color;
+import static java.awt.Color.GREEN;
 import java.util.regex.Pattern;
 
 public class BTC_TelnetMessage extends BTC_ConsoleMessage
@@ -100,7 +101,8 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
         SAY_MESSAGE(PATTERN_PREFIX + "\\[Server:", Color.BLUE),
         CSAY_MESSAGE(PATTERN_PREFIX + "\\[CONSOLE\\]<", Color.BLUE),
         //
-        ADMINSAY_MESSAGE(PATTERN_PREFIX + "\\[TotalFreedomMod\\] \\[ADMIN\\] ", PURPLE),
+        ADMINSAY_MESSAGE(PATTERN_PREFIX + "\\[" + BukkitTelnetClient.getPluginName() + "\\] \\[ADMIN\\] ", PURPLE),
+        SRADMINSAY_MESSAGE(PATTERN_PREFIX + "\\[" + BukkitTelnetClient.getPluginName() + "\\] \\[SENIOR-ADMIN\\] ", GREEN),
         //
         WORLD_EDIT(PATTERN_PREFIX + "WorldEdit: ", Color.RED),
         //
