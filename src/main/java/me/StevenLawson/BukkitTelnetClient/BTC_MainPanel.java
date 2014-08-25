@@ -2,11 +2,11 @@ package me.StevenLawson.BukkitTelnetClient;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,8 +24,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
@@ -69,6 +72,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         this.loadServerList();
         this.loadFonts();
+        this.loadRGB();
 
         final URL icon = this.getClass().getResource("/icon.png");
         if (icon != null)
@@ -200,31 +204,31 @@ public class BTC_MainPanel extends javax.swing.JFrame
                     switch(messageType)
                     {
                         case CHAT_MESSAGE:
-                            if(!BTC_MainPanel.this.showChat.isSelected())
+                            if(!showChat.isSelected())
                             {
                                 return;
                             }
                         break;
                         case CSAY_MESSAGE:
-                            if(!BTC_MainPanel.this.showCsay.isSelected())
+                            if(!showCsay.isSelected())
                             {
                                 return;
                             }
                         break;
                         case SAY_MESSAGE:
-                            if(!BTC_MainPanel.this.showSay.isSelected())
+                            if(!showSay.isSelected())
                             {
                                 return;
                             }
                         break;
                         case ADMINSAY_MESSAGE:
-                            if(!BTC_MainPanel.this.showAdmin.isSelected())
+                            if(!showAdmin.isSelected())
                             {
                                 return;
                             }
                         break;
                         case SRADMINSAY_MESSAGE:
-                            if(!BTC_MainPanel.this.showSRA.isSelected())
+                            if(!showSRA.isSelected())
                             {
                                 return;
                             }
@@ -534,6 +538,24 @@ public class BTC_MainPanel extends javax.swing.JFrame
         }
         FontFace.setSelectedItem(BTC_MainPanel.this.mainOutput.getFont());
     }
+    
+    public final void loadRGB()
+    {
+        List<Component> RGB = new ArrayList<>();
+        RGB.add(TR);
+        RGB.add(TG);
+        RGB.add(TB);
+        RGB.add(BR);
+        RGB.add(BG);
+        RGB.add(BB);
+        for (Component c : RGB)
+        {
+            SpinnerModel numbers = new SpinnerNumberModel(0, 0, 255, 1);
+            JSpinner spin = (JSpinner) c;
+            spin.removeAll();
+            spin.setModel(numbers);
+        }
+    }
 
     public final void saveServersAndTriggerConnect()
     {
@@ -603,7 +625,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jMenuItem1 = new javax.swing.JMenuItem();
         splitPane = new javax.swing.JSplitPane();
         jPanel3 = new javax.swing.JPanel();
         mainOutputScoll = new javax.swing.JScrollPane();
@@ -637,7 +658,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         showSay = new javax.swing.JCheckBox();
         showAdmin = new javax.swing.JCheckBox();
         showSRA = new javax.swing.JCheckBox();
-        jPanel5 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         chkIgnorePlayerCommands = new javax.swing.JCheckBox();
         chkIgnoreServerCommands = new javax.swing.JCheckBox();
@@ -653,13 +673,23 @@ public class BTC_MainPanel extends javax.swing.JFrame
         jLabel5 = new javax.swing.JLabel();
         PluginName = new javax.swing.JTextField();
         saveplugin = new javax.swing.JButton();
-
-        jMenuItem1.setText("jMenuItem1");
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        TR = new javax.swing.JSpinner();
+        TG = new javax.swing.JSpinner();
+        TB = new javax.swing.JSpinner();
+        BB = new javax.swing.JSpinner();
+        BG = new javax.swing.JSpinner();
+        BR = new javax.swing.JSpinner();
+        SaveColours = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BukkitTelnetClient");
 
         splitPane.setResizeWeight(1.0);
+
+        jPanel3.setName(""); // NOI18N
 
         mainOutput.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
         mainOutputScoll.setViewportView(mainOutput);
@@ -723,7 +753,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtCommand)
-                            .addComponent(txtServer, 0, 1, Short.MAX_VALUE))
+                            .addComponent(txtServer, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(btnConnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -741,7 +771,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
-                .addComponent(mainOutputScoll, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
+                .addComponent(mainOutputScoll)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCommand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -805,7 +835,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         jTabbedPane1.addTab("Player List", jPanel2);
 
-        message.setText("Message");
+        message.setToolTipText("Message");
         message.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 messageActionPerformed(evt);
@@ -923,19 +953,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
 
         jTabbedPane1.addTab("Chat", jPanel4);
 
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 570, Short.MAX_VALUE)
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 475, Short.MAX_VALUE)
-        );
-
-        jTabbedPane1.addTab("Binds", jPanel5);
-
         chkIgnorePlayerCommands.setSelected(true);
         chkIgnorePlayerCommands.setText("Ignore \"[PLAYER_COMMAND]\" messages");
 
@@ -987,6 +1004,19 @@ public class BTC_MainPanel extends javax.swing.JFrame
             }
         });
 
+        jLabel8.setText("Colours (RGB)");
+
+        jLabel9.setText("Text");
+
+        jLabel10.setText("Background");
+
+        SaveColours.setText("Save Colours");
+        SaveColours.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SaveColoursActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -1000,6 +1030,21 @@ public class BTC_MainPanel extends javax.swing.JFrame
                         .addComponent(FontFace, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(fslabel)
+                                .addGap(18, 18, 18)
+                                .addComponent(FontSize, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(PluginName, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 136, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(save, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(saveplugin, javax.swing.GroupLayout.Alignment.TRAILING)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel10))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel6)
                             .addComponent(chkIgnorePlayerCommands)
                             .addComponent(chkIgnoreServerCommands)
@@ -1009,16 +1054,21 @@ public class BTC_MainPanel extends javax.swing.JFrame
                             .addComponent(jLabel5))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(fslabel)
-                                .addGap(18, 18, 18)
-                                .addComponent(FontSize, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(PluginName, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 136, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(save, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(saveplugin, javax.swing.GroupLayout.Alignment.TRAILING))))
+                        .addComponent(TR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(TG, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(TB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(BR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(BG, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(BB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(SaveColours)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -1051,7 +1101,23 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(PluginName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(saveplugin))
-                .addContainerGap(143, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(SaveColours))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel10))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(TR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TG, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BG, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Options", jPanel1);
@@ -1064,7 +1130,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1170, Short.MAX_VALUE)
+                .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1276, Short.MAX_VALUE)
                 .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
@@ -1123,6 +1189,37 @@ public class BTC_MainPanel extends javax.swing.JFrame
         // TODO add your handling code here:
     }//GEN-LAST:event_txtCommandActionPerformed
 
+    private void savepluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savepluginActionPerformed
+        for (ServerEntry entry : BukkitTelnetClient.config.getServers())
+        {
+            if(entry.isLastUsed())
+            {
+                entry.setPlugin(BTC_MainPanel.this.PluginName.getText());
+            }
+        }
+    }//GEN-LAST:event_savepluginActionPerformed
+
+    private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
+        for (Component c : getAllComponents((Container) this))
+        {
+            c.setFont(setFontSize());
+        }
+    }//GEN-LAST:event_saveActionPerformed
+
+    private void FontFaceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FontFaceActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_FontFaceActionPerformed
+
+    private void chkIgnoreErrorsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkIgnoreErrorsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_chkIgnoreErrorsActionPerformed
+
+    private void chkShowChatOnlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkShowChatOnlyActionPerformed
+        boolean enable = !chkShowChatOnly.isSelected();
+        chkIgnorePlayerCommands.setEnabled(enable);
+        chkIgnoreServerCommands.setEnabled(enable);
+    }//GEN-LAST:event_chkShowChatOnlyActionPerformed
+
     private void showChatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showChatActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_showChatActionPerformed
@@ -1153,39 +1250,28 @@ public class BTC_MainPanel extends javax.swing.JFrame
         // TODO add your handling code here:
     }//GEN-LAST:event_messageActionPerformed
 
-    private void chkIgnoreErrorsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkIgnoreErrorsActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_chkIgnoreErrorsActionPerformed
-
-    private void chkShowChatOnlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkShowChatOnlyActionPerformed
-        boolean enable = !chkShowChatOnly.isSelected();
-        chkIgnorePlayerCommands.setEnabled(enable);
-        chkIgnoreServerCommands.setEnabled(enable);
-    }//GEN-LAST:event_chkShowChatOnlyActionPerformed
-
-    private void FontFaceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FontFaceActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_FontFaceActionPerformed
-
-    private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
-        BTC_MainPanel.this.mainOutput.setFont(setFontSize());
-    }//GEN-LAST:event_saveActionPerformed
-
-    private void savepluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savepluginActionPerformed
-        for (ServerEntry entry : BukkitTelnetClient.config.getServers())
+    private void SaveColoursActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveColoursActionPerformed
+        Color foreground = new Color((int) TR.getValue(), (int) TG.getValue(), (int) TB.getValue());
+        Color background = new Color((int) BR.getValue(), (int) BG.getValue(), (int) BB.getValue());
+        for (Component c : getAllComponents(this))
         {
-            if(entry.isLastUsed())
-            {
-                entry.setPlugin(BTC_MainPanel.this.PluginName.getText());
-            }
+            c.setForeground(foreground);
+            c.setBackground(background);
         }
-    }//GEN-LAST:event_savepluginActionPerformed
+    }//GEN-LAST:event_SaveColoursActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField Arguments;
+    private javax.swing.JSpinner BB;
+    private javax.swing.JSpinner BG;
+    private javax.swing.JSpinner BR;
     private javax.swing.JComboBox FontFace;
     private javax.swing.JTextField FontSize;
     private javax.swing.JTextField PluginName;
+    private javax.swing.JButton SaveColours;
+    private javax.swing.JSpinner TB;
+    private javax.swing.JSpinner TG;
+    private javax.swing.JSpinner TR;
     private javax.swing.JButton btnConnect;
     private javax.swing.JButton btnDisconnect;
     private javax.swing.JButton btnSend;
@@ -1201,18 +1287,19 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JLabel fflabel;
     private javax.swing.JLabel fslabel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextPane mainOutput;
@@ -1296,7 +1383,7 @@ public class BTC_MainPanel extends javax.swing.JFrame
     
     public Font getFont()
     {
-        String name = (String) BTC_MainPanel.this.FontFace.getSelectedItem();
+        String name = (String) FontFace.getSelectedItem();
         GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Font[] font = e.getAllFonts();
         for(Font f : font)
@@ -1321,6 +1408,21 @@ public class BTC_MainPanel extends javax.swing.JFrame
         {
             
         }
-        return new Font(font.getFontName(), 3, size);
+        return new Font(font.getFontName(), 0, size);
+    }
+    
+    public List<Component> getAllComponents(Container c)
+    {
+        Component[] comps = c.getComponents();
+        List<Component> compList = new ArrayList<Component>();
+        for (Component comp : comps)
+        {
+            compList.add(comp);
+            if (comp instanceof Container)
+            {
+                compList.addAll(getAllComponents((Container) comp));
+            }
+        }
+        return compList;
     }
 }
