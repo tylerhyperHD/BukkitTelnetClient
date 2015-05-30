@@ -647,8 +647,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
         Arguments = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         message = new javax.swing.JTextField();
-        srachat = new javax.swing.JButton();
-        sachat = new javax.swing.JButton();
         chat = new javax.swing.JButton();
         chatOutputScroll = new javax.swing.JScrollPane();
         chatOutput = new javax.swing.JTextPane();
@@ -850,20 +848,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
             }
         });
 
-        srachat.setText("SrA Chat");
-        srachat.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                srachatActionPerformed(evt);
-            }
-        });
-
-        sachat.setText("SA Chat");
-        sachat.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sachatActionPerformed(evt);
-            }
-        });
-
         chat.setText("Chat");
         chat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -892,17 +876,27 @@ public class BTC_MainPanel extends javax.swing.JFrame
         });
 
         showCsay.setSelected(true);
-        showCsay.setText("cSay");
+        showCsay.setText("CL 0");
+        showCsay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showCsayActionPerformed(evt);
+            }
+        });
 
         showSay.setSelected(true);
         showSay.setText("Say");
 
         showAdmin.setSelected(true);
-        showAdmin.setText("AdminChat");
+        showAdmin.setText("CL 1");
 
         showSRA.setSelected(true);
-        showSRA.setText("SrAChat");
+        showSRA.setText("CL 3");
         showSRA.setDoubleBuffered(true);
+        showSRA.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showSRAActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -911,14 +905,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(message)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(chat)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(sachat)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(srachat))
                     .addComponent(chatOutputScroll, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(chatAutoScroll)
@@ -928,11 +914,15 @@ public class BTC_MainPanel extends javax.swing.JFrame
                         .addComponent(showCsay)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(showSay)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(showAdmin)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(showSRA)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(message, javax.swing.GroupLayout.PREFERRED_SIZE, 447, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chat, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -941,11 +931,9 @@ public class BTC_MainPanel extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(message, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(srachat)
-                    .addComponent(sachat)
                     .addComponent(chat))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chatOutputScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+                .addComponent(chatOutputScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(chatAutoScroll)
@@ -1322,22 +1310,10 @@ public class BTC_MainPanel extends javax.swing.JFrame
     }//GEN-LAST:event_chatAutoScrollActionPerformed
 
     private void chatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chatActionPerformed
-        connectionManager.sendCommand("csay " + message.getText());
+        connectionManager.sendCommand("csay 0" + message.getText());
         message.selectAll();
         message.requestFocus();
     }//GEN-LAST:event_chatActionPerformed
-
-    private void sachatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sachatActionPerformed
-        connectionManager.sendCommand("o " + message.getText());
-        message.selectAll();
-        message.requestFocus();
-    }//GEN-LAST:event_sachatActionPerformed
-
-    private void srachatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_srachatActionPerformed
-        connectionManager.sendCommand("p " + message.getText());
-        message.selectAll();
-        message.requestFocus();
-    }//GEN-LAST:event_srachatActionPerformed
 
     private void messageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageActionPerformed
         // TODO add your handling code here:
@@ -1364,6 +1340,14 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         setColours(Color.YELLOW, Color.BLUE);
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void showCsayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCsayActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showCsayActionPerformed
+
+    private void showSRAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSRAActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showSRAActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField Arguments;
@@ -1418,7 +1402,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JTextPane mainOutput;
     private javax.swing.JScrollPane mainOutputScoll;
     private javax.swing.JTextField message;
-    private javax.swing.JButton sachat;
     private javax.swing.JButton save;
     private javax.swing.JButton saveplugin;
     private javax.swing.JCheckBox showAdmin;
@@ -1427,7 +1410,6 @@ public class BTC_MainPanel extends javax.swing.JFrame
     private javax.swing.JCheckBox showSRA;
     private javax.swing.JCheckBox showSay;
     private javax.swing.JSplitPane splitPane;
-    private javax.swing.JButton srachat;
     private javax.swing.JTable tblPlayers;
     private javax.swing.JTextField txtCommand;
     private javax.swing.JTextField txtNumPlayers;

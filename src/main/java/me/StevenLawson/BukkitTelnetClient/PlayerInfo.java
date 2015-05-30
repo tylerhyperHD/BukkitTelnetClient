@@ -22,10 +22,15 @@ public class PlayerInfo
     private final String displayName;
     private final String uuid;
 
-    // TFM tags:
     private final boolean admin;
-    private final boolean telnetAdmin;
+    private final boolean superAdmin;
     private final boolean seniorAdmin;
+    private final boolean executiveAdmin;
+    private final boolean specialistAdmin;
+    private final boolean systemAdmin;
+    private final boolean efmCreator;
+    private final boolean owner;
+    private final boolean overlord;
     private final String tag;
     private final String nickName;
 
@@ -59,15 +64,21 @@ public class PlayerInfo
         numColumns = _numColumns;
     }
 
-    public PlayerInfo(String name, String ip, String displayName, String uuid, boolean admin, boolean telnetAdmin, boolean seniorAdmin, String tag, String nickName)
+    public PlayerInfo(String name, String ip, String displayName, String uuid, boolean admin, boolean superAdmin, boolean seniorAdmin, boolean executiveAdmin, boolean specialistAdmin, boolean systemAdmin, boolean efmCreator, boolean owner, boolean overlord, String tag, String nickName)
     {
         this.name = name;
         this.ip = ip;
         this.displayName = displayName;
         this.uuid = uuid;
         this.admin = admin;
-        this.telnetAdmin = telnetAdmin;
+        this.superAdmin = superAdmin;
         this.seniorAdmin = seniorAdmin;
+        this.executiveAdmin = executiveAdmin;
+        this.specialistAdmin = specialistAdmin;
+        this.systemAdmin = systemAdmin;
+        this.efmCreator = efmCreator;
+        this.owner = owner;
+        this.overlord = overlord;
         this.tag = tag;
         this.nickName = nickName;
     }
@@ -99,14 +110,41 @@ public class PlayerInfo
         return admin;
     }
 
-    public boolean isTelnetAdmin()
+    public boolean isSuper()
     {
-        return telnetAdmin;
+        return superAdmin;
     }
-
-    public boolean isSeniorAdmin()
+    
+    public boolean isSenior()
     {
         return seniorAdmin;
+    }
+    
+    public boolean isExecutive()
+    {
+        return executiveAdmin;
+    }
+    
+    public boolean isSpecialist()
+    {
+        return specialistAdmin;
+    }
+    public boolean isSystem()
+    {
+        return systemAdmin;
+    }
+    public boolean isEfmcreator()
+    {
+        return efmCreator;
+    }
+    public boolean isOwner()
+    {
+        return owner;
+    }
+    
+    public boolean isOverlord()
+    {
+        return overlord;
     }
 
     @PlayerTableColumn(name = "Tag", column = 2)
@@ -126,17 +164,37 @@ public class PlayerInfo
     {
         if (isAdmin())
         {
-            if (isSeniorAdmin())
+            if (isOverlord())
+            {
+                return "Overlord";
+            }
+            else if (isOwner())
+            {
+                return "Owner";
+            }
+            else if (isSystem())
+            {
+                return "System";
+            }
+            else if (isSpecialist())
+            {
+                return "Specialist";
+            }
+            else if (isExecutive())
+            {
+                return "Executive";
+            }
+            else if (isSenior())
             {
                 return "Senior";
             }
-            else if (isTelnetAdmin())
+            else if (isSuper())
             {
-                return "Telnet";
+                return "Reg Admin";
             }
             else
             {
-                return "Super";
+                return "Admin";
             }
         }
         return "";

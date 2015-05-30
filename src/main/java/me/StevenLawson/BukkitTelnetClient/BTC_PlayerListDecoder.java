@@ -34,10 +34,16 @@ public class BTC_PlayerListDecoder
                             getStringSafe(player, "ip"),
                             getStringSafe(player, "displayName"),
                             getStringSafe(player, "uuid"),
-                            Boolean.valueOf(getStringSafe(player, "tfm.admin.isAdmin")),
-                            Boolean.valueOf(getStringSafe(player, "tfm.admin.isTelnetAdmin")),
-                            Boolean.valueOf(getStringSafe(player, "tfm.admin.isSeniorAdmin")),
-                            getStringSafe(player, "tfm.playerdata.getTag"),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isAdmin")),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isSuper")),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isSenior")),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isExecutive")),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isSpecialist")),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isSystem")),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isEfmcreator")),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isOwner")),
+                            Boolean.valueOf(getStringSafe(player, "fopmr.rank.isOverlord")),
+                            getStringSafe(player, "fopmr.rank.getTag"),
                             getStringSafe(player, "tfm.essentialsBridge.getNickname")
                     ));
                 }

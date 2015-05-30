@@ -98,7 +98,7 @@ public class BTC_TelnetMessage extends BTC_ConsoleMessage
     public static enum BTC_LogMessageType
     {
         CHAT_MESSAGE(PATTERN_PREFIX + "\\<", Color.BLUE),
-        SAY_MESSAGE(PATTERN_PREFIX + "\\[Server:", Color.BLUE),
+        SAY_MESSAGE(PATTERN_PREFIX + "\\[CONSOLE :", Color.BLUE),
         CSAY_MESSAGE(PATTERN_PREFIX + "\\[CONSOLE\\]<", Color.BLUE),
         //
         ADMINSAY_MESSAGE(PATTERN_PREFIX + "\\[" + BukkitTelnetClient.getPluginName() + "\\] \\[ADMIN\\] ", PURPLE),
